@@ -131,6 +131,7 @@ Retreived from https://huggingface.co/spaces/mteb/leaderboard
 ![setting up vector search on mongo db in our current scalar db](image-19.png)
 - searchTasks embeds your search words into a vector and finds the stored tasks closest to it in meaning
 - it returns the top few matches each with a score showing how close they are
+![alt text](image-21.png)
 ![alt text](image-20.png)
 - closestTask finds the most similar existing task and its score, and if it is 0.85 or higher the task is treated as a duplicate and not added
 - the embedding benchmark showed a wide gap duplicates about 0.8, different tasks about 0.25
