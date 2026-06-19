@@ -12,14 +12,22 @@ client = MongoClient(os.environ["MONGO_URI"])
 #creates db and collection 
 db = client["todo"]
 tasks = db["tasks"]
+
+duplicateThreshold = 0.85
+
 #function to add task, set to open by default and timestamp is the moment its created
 def addTask(text):
-    tasks.insert_one({
-        "text": text,
-        "status": "open",
-        "createdAt": datetime.now(),
-        "embedding": embed(text),
-    })
+    match = closestTask(text)
+    if match and match["score"] >= duplicateThreshold:
+        print("duplicate of:", match["text"], "score", round(match["score"], 2))
+    else:
+        tasks.insert_one({
+            "text": text,
+            "status": "open",
+            "createdAt": datetime.now(),
+            "embedding": embed(text),
+        })
+        print("added:", text)
 
 #grab every task back and print it
 def listTasks():
@@ -34,6 +42,7 @@ def completeTask(text):
 def deleteTask(text):
     tasks.delete_one({"text": text})
 
+#search tasks by meaning, returns the closest matches with their score
 def searchTasks(query):
     queryVector = embed(query)
     results = tasks.aggregate([
@@ -56,6 +65,30 @@ def searchTasks(query):
     for task in results:
         print(round(task["score"], 2), task["text"])
 
+def closestTask(text):
+    queryVector = embed(text)
+    results = tasks.aggregate([
+        {
+            "$vectorSearch": {
+                "index": "vector_index",
+                "path": "embedding",
+                "queryVector": queryVector,
+                "numCandidates": 50,
+                "limit": 1,
+            }
+        },
+        {
+            "$project": {
+                "text": 1,
+                "score": {"$meta": "vectorSearchScore"},
+            }
+        },
+    ])
+    results = list(results)
+    if results:
+        return results[0]
+    return None
+
 # addTask("walk the dog")
 # addTask("send the email")
 # completeTask("walk the dog")
@@ -63,6 +96,8 @@ def searchTasks(query):
 # addTask("buy bread")
 # listTasks()  
 
-addTask("buy groceries")
-addTask("phone the dentist")
-searchTasks("something about food")
+# addTask("buy groceries")
+# addTask("phone the dentist")
+# searchTasks("something about food")
+# addTask("grab some bread")   
+# addTask("walk the dog")      
