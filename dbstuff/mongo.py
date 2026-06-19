@@ -55,10 +55,14 @@ def searchTasks(query):
     ])
     for task in results:
         print(round(task["score"], 2), task["text"])
-        
+
 # addTask("walk the dog")
 # addTask("send the email")
 # completeTask("walk the dog")
 # deleteTask("send the email")
 # addTask("buy bread")
 # listTasks()  
+
+addTask("buy groceries")
+addTask("phone the dentist")
+searchTasks("something about food")
