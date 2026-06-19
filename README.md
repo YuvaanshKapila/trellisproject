@@ -124,3 +124,10 @@ Retreived from https://huggingface.co/spaces/mteb/leaderboard
 - the database and collection are made on the first write
 ![alt text](image-17.png)
 - made 4 new functions to add tasks, complete tasks, delete tasks, list tasks, right now there is no harness calling it, later there will be just placeholder to see if it works
+### actually make it vector for ddups and searches
+- The embedding model (all-minilm) turns each task into 384 numbers that capture its meaning, so the app can spot duplicates and search by meaning even when the wording is different
+![alt text](image-18.png)
+- called the embed function into mongo.py to embed the text parameter
+![setting up vector search on mongo db in our current scalar db](image-19.png)
+- searchTasks embeds your search words into a vector and finds the stored tasks closest to it in meaning
+- it returns the top few matches each with a score showing how close they are
