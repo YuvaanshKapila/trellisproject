@@ -1,0 +1,27 @@
+[
+  {
+    "model": "qwen3:8b",
+    "accuracy": 100.0,
+    "seconds": 102.3
+  },
+  {
+    "model": "qwen3:14b",
+    "accuracy": 75.0,
+    "seconds": 144.1
+  },
+  {
+    "model": "llama3.1:8b",
+    "accuracy": 91.7,
+    "seconds": 14.6
+  },
+  {
+    "model": "llama3.2:3b",
+    "accuracy": 66.7,
+    "seconds": 10.2
+  },
+  {
+    "model": "artcx001/Ministral-8B-Instruct-2410:Q4_K_M",
+    "accuracy": 75.0,
+    "seconds": 26.5
+  }
+]
