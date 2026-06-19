@@ -26,7 +26,7 @@
 ![Ministral-8B-Instruct-2410 (FC) | Overall Acc: 11.1 | Rank 105](image-6.png)
 ![phi4-mini](image-8.png)
 - GLM-4.6 / Kimi K2 (FC) won't run on my machine
-#### Tau0 Bench(even though for industry standards still helpful for learning)
+#### Tau(2)-Bench(even though for industry standards still helpful for learning)
 - Proprietary (ceiling, cannot run locally):
     - Claude Sonnet 4.5: 88.1
     - GPT-5: 84.2
@@ -66,3 +66,61 @@ tau-bench: Yao et al., 2024, "τ-bench: A Benchmark for Tool-Agent-User Interact
 ![alt text](image-10.png)
 ![alt text](image-11.png)
 ![alt text](image-12.png)
+
+#### issues from phase 1
+- Smooth sailing so far, just network download issues, simpliy reran
+- ministral is not in ollamas official libary so had to use community uploads
+- first prompt size was too small
+
+## Phase 2
+### Database setup
+- I have a github student educaiton plan so I have alot of mongo db credits
+- Refreshing my memory on vectors and semantics, a vector is a list of numbers that uses the meaning of text, a.k.a semantics, a embedding model turns "buy milk" into something like [0.12, -0.04, 0.88, ...] (hundreds of numbers). Texts with simalar meaning like the numbers get simular vectors so they sit close toghether allowing for optimal token retrival, semantic is just the act of searching by meaning, not exact words, so "grab milk" and "buy milk" come out close even though the letters differ. 
+- Its different from scalar as it finds exact values not meaning, milk finds milk but not dairy, a set string, number, or a date.
+- This to-do app would need to use scalar for the plain fields but vectors for the dedup and search. 
+
+### why db
+- need the tasks to actually save and store at the end of each session, without the db it will just reset, also db is needed to store each task as a id, the task itself, the status, the date created, and teh vector embedding(meaning used for dedup and semantic search)
+
+### which embedding model
+- the current quen3 8b model reads what the user says and picks a tool but it cant produce vectors for dedup and semantic search, to take text in and give a vector out to store in the database
+- this time to benchmark embedding models I will see how good htey are at telling duplciates apart from non duplclicates
+
+#### Online findings
+- ![QwenEmbedding](image-13.png)
+- ![Nomic](image-14.png)
+- ![mixed bread](image-15.png)
+- ![minillm](image-16.png)
+Retreived from https://huggingface.co/spaces/mteb/leaderboard 
+- Same as phase 1, you cant just trust online leaderboards, MTEB pointed at big Qwen models but the task here is its own thing, so we benchmark on our own task
+- MTEB's top models were 7 to 8B, too big for my 12GB card, and some had low zero shot scores
+##### learning about zero shot
+- The zero shot column on MTEB shows how much of the benchmark the model did NOT train on
+- A low number (like 48%) means it trained on a big chunk of the benchmark, so its high score is partly inflated, not real skill
+- A high number (like 95% for Qwen3 Embedding) means the score was earned on unseen data, so its more trustworthy
+#### code explaination
+- The benchmark first connects to local Ollama through the openai library pointed at the local host
+- models is the list of embedding models being tested, small to large
+- testCases is pairs of tasks, True if they are really the same task (a duplicate) and False if they are different
+- threshold is the cutoff, if two tasks score this similar or higher we count them as a duplicate
+- The embed function turns one piece of text into its vector, the numbers that hold its meaning
+- The cosine function takes two vectors and gives how close they are, 0 is different and 1 is identical
+- For each model it warms up, then for every pair it embeds both texts, gets the similarity, and guesses duplicate if its above the threshold, adding a point each time the guess matches the label
+- It keeps the duplicate scores and the non duplicate scores separate so it can show each average, and the bigger the gap between them the cleaner the model separates duplicates from different tasks
+- At the end it works out accuracy and the two averages, prints them and saves to results2.json
+- So each model was benchmarked by giving it pairs of tasks and measuring how well its similarity tells real duplicates apart from different ones
+#### results
+- basically all llms got 100 percent accuracy but the true test was in the displacement in teh data, mini lm came out on top
+- It is also the smallest and fastest, and only 384 dims so the cheapest to store in the database
+- Qwen3 Embedding 4b also hit 100% but a smaller gap (0.38) for way more size
+### setting up mongodb
+- already have credits from a prev hackathon
+- making a cluster and setting my ip adress to the ip adress list so I can access it 
+- made a script and setup a env, the script just connects to atlas thru the connection string.
+- load_dotenv gets the secret connection string from the .env
+- MongoClient connects to the cluster
+- the database (todo) holds the collection (tasks) which holds the documents
+- insert_one adds a task, find reads them back
+- the database and collection are made on the first write
+![alt text](image-17.png)
+- made 4 new functions to add tasks, complete tasks, delete tasks, list tasks, right now there is no harness calling it, later there will be just placeholder to see if it works
