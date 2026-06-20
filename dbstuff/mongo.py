@@ -17,6 +17,7 @@ duplicateThreshold = 0.85
 
 #function to add task, set to open by default and timestamp is the moment its created
 def addTask(text):
+    """Add a new task to the to-do list."""
     match = closestTask(text)
     if match and match["score"] >= duplicateThreshold:
         print("duplicate of:", match["text"], "score", round(match["score"], 2))
@@ -27,23 +28,28 @@ def addTask(text):
             "createdAt": datetime.now(),
             "embedding": embed(text),
         })
-        print("added:", text)
+        return "added: " + text
 
 #grab every task back and print it
 def listTasks():
-    for task in tasks.find():
-        print(task)
+    """List every task on the to-do list."""
+    return "\n".join(task["text"] + " (" + task["status"] + ")" for task in tasks.find())
 
 #find the task with this text and set its status to done
 def completeTask(text):
+    """Mark a task as done."""
     tasks.update_one({"text": text}, {"$set": {"status": "done"}})
+    return "marked done: " + text
 
 #find the task with this text and remove it
 def deleteTask(text):
+    """Delete a task from the list."""
     tasks.delete_one({"text": text})
+    return "deleted: " + text
 
 #search tasks by meaning, returns the closest matches with their score
 def searchTasks(query):
+    """Search the to-do list by meaning."""
     queryVector = embed(query)
     results = tasks.aggregate([
         {
@@ -62,8 +68,7 @@ def searchTasks(query):
             }
         },
     ])
-    for task in results:
-        print(round(task["score"], 2), task["text"])
+    return "\n".join(task["text"] for task in results)
 
 def closestTask(text):
     queryVector = embed(text)
@@ -102,10 +107,9 @@ def closestTask(text):
 # addTask("grab some bread")   
 # addTask("walk the dog")      
 
-tasks.delete_many({})     #clears every document in the collection
-
-addTask("buy milk")
-addTask("walk the dog")
-addTask("buy bread")
-addTask("phone the dentist")
-listTasks()
+# tasks.delete_many({})     
+# addTask("buy milk")
+# addTask("walk the dog")
+# addTask("buy bread")
+# addTask("phone the dentist")
+# listTasks()
