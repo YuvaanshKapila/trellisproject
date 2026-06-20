@@ -20,7 +20,7 @@ def addTask(text: str):
     """Add a new task to the to-do list."""
     match = closestTask(text)
     if match and match["score"] >= duplicateThreshold:
-        print("duplicate of:", match["text"], "score", round(match["score"], 2))
+        return "not added, duplicate of: " + match["text"]
     else:
         tasks.insert_one({
             "text": text,
@@ -38,14 +38,16 @@ def listTasks():
 #find the task with this text and set its status to done
 def completeTask(text: str):
     """Mark a task as done."""
-    tasks.update_one({"text": text}, {"$set": {"status": "done"}})
-    return "marked done: " + text
+    match = closestTask(text)
+    tasks.update_one({"text": match["text"]}, {"$set": {"status": "done"}})
+    return "marked done: " + match["text"]
 
 #find the task with this text and remove it
 def deleteTask(text: str):
     """Delete a task from the list."""
-    tasks.delete_one({"text": text})
-    return "deleted: " + text
+    match = closestTask(text)
+    tasks.delete_one({"text": match["text"]})
+    return "deleted: " + match["text"]
 
 #search tasks by meaning, returns the closest matches with their score
 def searchTasks(query: str):

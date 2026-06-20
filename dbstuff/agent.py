@@ -1,7 +1,7 @@
 #import chatolama
 from langchain_ollama import ChatOllama
 from langchain_core.tools import tool
-from langgraph.prebuilt import create_react_agent
+from langchain.agents import create_agent
 from mongo import addTask, listTasks, searchTasks, completeTask, deleteTask
 
 llm = ChatOllama(model="qwen3:8b", temperature=0) #you dont want the llm to be creativce when embedding and making to-do tasks
