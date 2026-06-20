@@ -183,3 +183,8 @@ Retreived from https://huggingface.co/spaces/mteb/leaderboard
 - integration buttons inspired by trellis, essentially so people can easily make whatsapp slack and discord integrations with it. 
 ##### slack
 - made thru manifest
+- bot runs over socket mode so no tunnel needed, answers DMs and @mentions. also wired the real "add to slack" oauth install flow (uses ngrok for the callback)
+![alt text](image-28.png)
+##### Whatsapp
+- hooked up through twilios sandbox, incoming texts hit a webhook over ngrok and the agent replies back on whatsapp
+![alt text](image-29.png)

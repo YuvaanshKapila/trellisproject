@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from pydantic import BaseModel
 from agent import chat
 from fastapi.responses import FileResponse
@@ -29,3 +29,11 @@ def slackOauth(code: str):
         "redirect_uri": os.environ["SLACK_REDIRECT_URI"],
     })
     return result.json()
+
+@app.post("/whatsapp")
+async def whatsapp(request: Request):
+    form = await request.form()
+    reply = chat(form.get("Body", ""))
+    #twilio turns xml into a whatsapp reply
+    xml = "<Response><Message>" + reply + "</Message></Response>"
+    return Response(content=xml, media_type="application/xml")
