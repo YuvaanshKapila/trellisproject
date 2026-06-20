@@ -168,3 +168,18 @@ Retreived from https://huggingface.co/spaces/mteb/leaderboard
 - system prompt made, made a search simalrity for the vector at 0.65 forgot to add that before
 ![alt text](image-23.png)
 - this is the result with the system prompt, much better
+
+### Phase 5
+#### Integrations
+- the structure will be my agent which then goes to like a chat gpt(exfast) which then connects to my front end, discord, slack, and whatsapp
+- first need to extract the agent into a chat function with FastAPI alongsidew a /chat endpoint
+![alt text](image-24.png)
+![alt text](image-25.png)
+##### Discord
+![alt text](image-26.png)
+- added message content intent and send messages and read message history bot intent
+![alt text](image-27.png)
+##### Frontend barebones
+- integration buttons inspired by trellis, essentially so people can easily make whatsapp slack and discord integrations with it. 
+##### slack
+- made thru manifest

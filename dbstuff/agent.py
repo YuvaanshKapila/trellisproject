@@ -15,9 +15,13 @@ tools = [tool(addTask), tool(listTasks), tool(searchTasks), tool(completeTask), 
 #make agetn 
 agent = create_agent(llm, tools, system_prompt=systemPrompt)
 
-while True:
-    userInput = input(" ")
-    if userInput == "quit":
-        break
-    result = agent.invoke({"messages": [("user", userInput)]})
-    print(result["messages"][-1].content)
+def chat(message):
+    result = agent.invoke({"messages": [("user", message)]})
+    return result["messages"][-1].content
+
+if __name__ == "__main__":
+    while True:
+        userInput = input("")
+        if userInput == "quit":
+            break
+        print(chat(userInput))
