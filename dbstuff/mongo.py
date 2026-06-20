@@ -16,7 +16,7 @@ tasks = db["tasks"]
 duplicateThreshold = 0.85
 
 #function to add task, set to open by default and timestamp is the moment its created
-def addTask(text):
+def addTask(text: str):
     """Add a new task to the to-do list."""
     match = closestTask(text)
     if match and match["score"] >= duplicateThreshold:
@@ -36,19 +36,19 @@ def listTasks():
     return "\n".join(task["text"] + " (" + task["status"] + ")" for task in tasks.find())
 
 #find the task with this text and set its status to done
-def completeTask(text):
+def completeTask(text: str):
     """Mark a task as done."""
     tasks.update_one({"text": text}, {"$set": {"status": "done"}})
     return "marked done: " + text
 
 #find the task with this text and remove it
-def deleteTask(text):
+def deleteTask(text: str):
     """Delete a task from the list."""
     tasks.delete_one({"text": text})
     return "deleted: " + text
 
 #search tasks by meaning, returns the closest matches with their score
-def searchTasks(query):
+def searchTasks(query: str):
     """Search the to-do list by meaning."""
     queryVector = embed(query)
     results = tasks.aggregate([
