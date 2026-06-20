@@ -101,3 +101,11 @@ def closestTask(text):
 # searchTasks("something about food")
 # addTask("grab some bread")   
 # addTask("walk the dog")      
+
+tasks.delete_many({})     #clears every document in the collection
+
+addTask("buy milk")
+addTask("walk the dog")
+addTask("buy bread")
+addTask("phone the dentist")
+listTasks()
