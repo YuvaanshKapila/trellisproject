@@ -14,6 +14,7 @@ db = client["todo"]
 tasks = db["tasks"]
 
 duplicateThreshold = 0.85
+searchThreshold = 0.65
 
 #function to add task, set to open by default and timestamp is the moment its created
 def addTask(text: str):
@@ -70,7 +71,7 @@ def searchTasks(query: str):
             }
         },
     ])
-    return "\n".join(task["text"] for task in results)
+    return "\n".join(task["text"] for task in results if task["score"] >= searchThreshold)
 
 def closestTask(text):
     queryVector = embed(text)

@@ -136,3 +136,35 @@ Retreived from https://huggingface.co/spaces/mteb/leaderboard
 - closestTask finds the most similar existing task and its score, and if it is 0.85 or higher the task is treated as a duplicate and not added
 - the embedding benchmark showed a wide gap duplicates about 0.8, different tasks about 0.25
 -the 0.85 was based off this, from the search tests as well it was found that different tasks scored from 0.5 to 0.7, knowing it must be higher and the bread simalarity scored 0.9, 0.85 was the sweet spot
+
+## Phase 4
+### What orchestrator?
+- I want to be more impressive so I am choosing langchain over a sdk
+- using landchain also cause it has nice ollama integration
+- using chatollama
+### setting up agents.py
+- using chatollama for simplicity
+- setting temp to 0 as you don't want the agent to be creative when embedding and making set predefined to-do tasks
+    - A bit of learning, a temperature of 0 uses greedy encoding, meaning it just picks the most likely response next, the same as k-nearest-neighbours top k=1(choosing the top 1 most likely next words) comapred to top-p with temperature it takes teh sum of probabiltiies then only chooses words within that range.
+- in mongo.py added prompts to each tool so the agent can call it, then switched all prints to a return, closestTask doesnt need it because its a helper call not a tool call
+    - addTask: adds a task, or returns "duplicate of" if one too similar already exists
+    - listTasks: returns every task with its status
+    - completeTask: marks a task as done and returns a confirmation
+    - deleteTask: removes a task and returns a confirmation
+    - searchTasks: returns the tasks closest in meaning to the query
+    - closestTask: helper (not a tool) that finds the single most similar task, used by the others
+- chatollama runs qwen3 8b locally
+- wraped the five functions as tols
+- create_agent ties the model and tols together so it piks the tool itself from plain chat. theres a little while loop to type messages and result grabs the agents final reply
+#### issue
+- bug: complete and delete used exact text match
+- so "bread" never matched "buy bread", nothing changed
+- but the function still returned marked done, so it looked like it worked
+- noticed cause bread was still open in the list after
+- sent complete and delete through closestTask like addTask
+- addTask was printing the duplicate message instead of returning it, so the agent never saw it and claimed it added a dupe. fixed it to return
+![alt text](image-22.png)
+- should add system prompt format shouldnt be different every single time
+- system prompt made, made a search simalrity for the vector at 0.65 forgot to add that before
+![alt text](image-23.png)
+- this is the result with the system prompt, much better
